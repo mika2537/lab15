@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest  # 👈 macOS runner
+    runs-on: macos-latest
 
     steps:
       - name: Checkout Code
@@ -24,6 +24,11 @@ jobs:
           java-version: '23'
           distribution: 'temurin'
 
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.13.0
+        with:
+          maven-version: '3.9.6'
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -33,13 +38,13 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run Checkstyle
-        run: mvn checkstyle:check
+        run: mvn checkstyle:check --batch-mode
 
       - name: Run Tests and Check Coverage
-        run: mvn test jacoco:check
+        run: mvn test jacoco:check --batch-mode
 
       - name: Generate JaCoCo Report
-        run: mvn jacoco:report
+        run: mvn jacoco:report --batch-mode
 
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
