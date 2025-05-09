@@ -83,7 +83,7 @@
                         <configuration>
                             <rules>
                                 <rule>
-                                    <element>BRANCH</element>
+                                    <element>BUNDLE</element>
                                     <limits>
                                         <limit>
                                             <counter>BRANCH</counter>
