@@ -1,40 +1,53 @@
-name: Java CI with Maven
+name: CI Process
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - develop
+      - release/*
   pull_request:
-    branches: [ main ]
+    branches:
+      - develop
+      - release/*
 
 jobs:
-  build:
-
+  build-and-test:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up JDK 23
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '23'
+          distribution: 'temurin'
+
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.13.0
+        with:
+          maven-version: '3.9.6'
 
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with Maven
-        run: mvn clean verify
+      - name: Run Checkstyle
+        run: mvn checkstyle:check --batch-mode
 
-      - name: Upload JaCoCo coverage report
-        if: always()
+      - name: Run Tests and Check Coverage
+        run: mvn test jacoco:check --batch-mode
+
+      - name: Generate JaCoCo Report
+        run: mvn jacoco:report --batch-mode
+
+      - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: target/site/jacoco/
+          path: target/site/jacoco
